@@ -1,0 +1,53 @@
+# language: yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'   # triggers on v1.2.3, v1.2.3-alpha, etc.
+
+permissions:
+  contents: write  # required to create/upload release assets
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Derive release metadata (version and prerelease flag)
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          ver="${GITHUB_REF_NAME#v}" 
+          prerelease=false
+          if printf '%s' "$ver" | grep -Eiq -- '(-?(alpha|beta|rc)[0-9]*$)|([0-9](a|b|rc)[0-9]*$)'; then
+            prerelease=true
+          fi
+          echo "ver=$ver" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
+      - name: Build source tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          ver="${{ steps.meta.outputs.ver }}"
+          repo="${GITHUB_REPOSITORY##*/}"
+          # Create reproducible tarball from the tag
+          git archive --format=tar --prefix="${repo}-${ver}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
+          sha256sum "${repo}-${ver}.tar.gz" > "${repo}-${ver}.tar.gz.sha256"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          files: |
+            *.tar.gz
+            *.sha256
+            *.asc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

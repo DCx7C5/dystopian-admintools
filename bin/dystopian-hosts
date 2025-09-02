@@ -1,0 +1,130 @@
+#!/bin/sh
+# shellcheck shell=sh
+# shellcheck disable=SC2001
+# shellcheck disable=SC2034
+
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+VAR_LIB_FILE="/usr/lib/dystopian-tools/variables.sh"
+DB_LIB_FILE="/usr/lib/dystopian-tools/hosts-db.sh"
+HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
+SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
+GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
+SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
+HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
+
+
+[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../lib/variables.sh"
+[ -f "$DB_LIB_FILE" ] || DB_LIB_FILE="$SCRIPT_DIR/../lib/hosts-db.sh"
+[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
+[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
+[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
+[ -f "$SECBOOT_LIB_FILE" ] || SECBOOT_LIB_FILE="$SCRIPT_DIR/../lib/secboot.sh"
+[ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../lib/hosts.sh"
+
+
+# Source library files
+# shellcheck source=../lib/variables.sh
+[ -f "$VAR_LIB_FILE" ] && . "$VAR_LIB_FILE"
+# shellcheck source=../lib/hosts-db.sh
+[ -f "$DB_LIB_FILE" ] && . "$DB_LIB_FILE"
+# shellcheck source=../lib/helper.sh
+[ -f "$HELPER_LIB_FILE" ] && . "$HELPER_LIB_FILE"
+# shellcheck source=../lib/ssl.sh
+[ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
+# shellcheck source=../lib/gpg.sh
+[ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
+#shellcheck source=../lib/secboot.sh
+[ -f "$SECBOOT_LIB_FILE" ] && . "$SECBOOT_LIB_FILE"
+#shellcheck source=../lib/hosts.sh
+[ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
+#trap on_error_or_exit && exit 1 INT TERM HUP
+trap on_exit EXIT
+
+VERBOSE=0
+DEBUG=0
+QUIET=0
+RAND="$(od -An -N2 -i /dev/urandom | tr -d ' ' | head -c 4)"
+
+
+help() {
+  cat <<EOF
+Usage: $0 <command> [options]
+
+Description:
+  Synchronize dystopian-hosts data with other hosts defined in the hosts database.
+
+
+Commands:
+
+  sync
+    --host <host>     Synchronize with a specific host from the hosts DB.
+    --all           Synchronize with all hosts in the hosts DB.
+
+
+Maintenance Commands:
+
+
+
+Other Commands:
+  -v | --verbose                      Show verbose status informations
+  -q | --quiet                        No output informations
+  --debug                             Show debug status informations
+  version                             Show version information
+  help                                Show this help message
+
+
+Examples:
+  # Sync with a single host
+  $0 sync --host example-host
+
+  # Sync with all hosts from the database
+  $0 sync --all
+
+
+Files:
+  System directory:      $DH_DIR/
+  User config directory: $DH_HOME/
+
+
+Database:
+  Hosts database (system): $DH_DIR/hosts-db.json
+  Hosts database (user):   $DH_HOME/hosts-db.json
+
+
+Notes:
+  • May require SSH access and credentials to target hosts
+  • Use --verbose/--debug for detailed output during synchronization
+  • System-wide operations may require elevated privileges to read/write $DH_DIR
+
+EOF
+}
+
+
+preparse "$0" "$@"
+set --
+old_IFS=$IFS
+IFS='||'
+for a in $DC_POS_ARGS; do
+  [ -n "$a" ] && set -- "$@" "$a"
+done
+IFS=$old_IFS
+
+
+case "$1" in
+  sync)
+    shift
+    host="" all=""
+    while [ $# -gt 0 ]; do
+      case "$1" in
+          --host|-h) host="$2"; shift 2;;
+          --all|-a) all="true"; shift;;
+          -help|--help) shorthelp "sync"; exit 0;;
+          *) echoe "Unknown option: $1"; shorthelp "sync"; exit 1;;
+      esac
+    done
+    host_sync ""
+    ;;
+  -h|--help|-help) help; exit 0;;
+  *) echoe "Unknown command: $1"; help; exit 1;;
+esac

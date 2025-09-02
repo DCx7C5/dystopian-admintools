@@ -1,0 +1,24 @@
+{
+  "GITHUB_TOKEN": "",
+
+  "packages": {
+    "dystopian-tools": {
+      "last_check": "",
+      "gitaur": {
+        "url": "",
+        "pkgver": "",
+        "pkgrel": "",
+        "last_build": ""
+      },
+      "": {
+
+      },
+      "upstream": {
+        "url": "",
+        "last_update": "",
+        "latest_version": "",
+        "pre_release": ""
+      }
+    }
+  }
+}

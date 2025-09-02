@@ -1,0 +1,144 @@
+#!/bin/sh
+# shellcheck shell=sh
+# shellcheck disable=SC2001
+# shellcheck disable=SC2034
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+VAR_LIB_FILE="/usr/lib/dystopian-tools/variables.sh"
+DB_LIB_FILE="/usr/lib/dystopian-tools/aurtool-db.sh"
+HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
+SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
+GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
+HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
+AUR_LIB_FILE="/usr/lib/dystopian-tools/aurtool.sh"
+
+[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../lib/variables.sh"
+[ -f "$DB_LIB_FILE" ] || DB_LIB_FILE="$SCRIPT_DIR/../lib/aurtool-db.sh"
+[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
+[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
+[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
+[ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../lib/hosts.sh"
+[ -f "$AUR_LIB_FILE" ] || AUR_LIB_FILE="$SCRIPT_DIR/../lib/aurtool.sh"
+
+# Source library files
+# shellcheck source=../lib/variables.sh
+[ -f "$VAR_LIB_FILE" ] && . "$VAR_LIB_FILE"
+# shellcheck source=../lib/aurtool-db.sh
+[ -f "$DB_LIB_FILE" ] && . "$DB_LIB_FILE"
+# shellcheck source=../lib/helper.sh
+[ -f "$HELPER_LIB_FILE" ] && . "$HELPER_LIB_FILE"
+# shellcheck source=../lib/ssl.sh
+[ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
+# shellcheck source=../lib/gpg.sh
+[ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
+# shellcheck source=../lib/hosts.sh
+[ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
+# shellcheck source=../lib/aurtool.sh
+[ -f "$AUR_LIB_FILE" ] && . "$AUR_LIB_FILE"
+#trap on_error_or_exit && exit 1 INT TERM HUP
+trap on_exit EXIT
+
+VERBOSE=0
+DEBUG=0
+QUIET=0
+RAND="$(od -An -N2 -i /dev/urandom | tr -d ' ' | head -c 4)"
+
+
+help() {
+  cat <<EOF
+Usage: $0 <command> [options]
+
+Description:
+  Manage AUR-related versioning and packaging tasks.
+
+
+Commands:
+  addtoken <token>                    Add Github Token to database file.
+
+  addpkg <pkgname>                    Adds package to database file.
+
+  getversion <pkgname>                Show the current package version.
+
+  bumprel <pkgname>                   Bump the package release number.
+
+  createsrcs <pkgname>
+
+  buildpkg <pkgname>                  Build and package the project.
+
+  signpkg <pkgname>                   Sign the package.
+
+
+Other Commands:
+  -v | --verbose                      Show verbose status informations
+  -q | --quiet                        No output informations
+  --debug                             Show debug status informations
+  version                             Show version information
+  help                                Show this help message
+
+
+Examples:
+  # Show current version
+  $0 version --getversion
+
+
+Files:
+  System directory:      $DA_DIR/
+  AUR tool database file: ${DA_DB:-N/A}
+
+
+Notes:
+  • Version and packaging tasks may interact with PKGBUILD and VCS metadata
+  • Use --verbose/--debug for detailed build and versioning logs
+
+EOF
+}
+
+
+preparse "$0" "$@"
+set --
+old_IFS=$IFS
+IFS='||'
+for a in $DC_POS_ARGS; do
+  [ -n "$a" ] && set -- "$@" "$a"
+done
+IFS=$old_IFS
+
+
+case "$1" in
+  addtoken)
+    shift
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -h|--help|-help|help) help; exit 0;;
+        --) shift; break ;;
+        *) break;;
+      esac
+    done
+    add_ghtoken "$1"
+    ;;
+  addpkg)
+    shift
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -h|--help|-help|help) help; exit 0;;
+        --) shift; break ;;
+        *) break;;
+      esac
+    done
+    add_package "$1"
+    ;;
+  getversion)
+    shift
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -h|--help|-help|help) help; exit 0;;
+        --) shift; break ;;
+        *) break;;
+      esac
+    done
+    get_package_version "$1"
+    ;;
+
+  -h|--help|-help) help; exit 0;;
+  *) echoe "Unknown command: $1"; help; exit 1;;
+esac

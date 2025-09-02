@@ -1,0 +1,9 @@
+{
+  "defaultHost": "localhost",
+  "hosts": {
+    "localhost": {
+      "user": "",
+      "ip": "127.0.0.1"
+    }
+  }
+}
