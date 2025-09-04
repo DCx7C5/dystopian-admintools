@@ -10,8 +10,12 @@
         "pkgrel": "",
         "last_build": ""
       },
-      "": {
-
+      "hostaur": {
+        "url": "",
+        "pkgver": "",
+        "pkgrel": "",
+        "last_build": "",
+        "host_name": ""
       },
       "upstream": {
         "url": "",

@@ -5,39 +5,46 @@
 
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-VAR_LIB_FILE="/usr/lib/dystopian-tools/variables.sh"
-DB_LIB_FILE="/usr/lib/dystopian-tools/hosts-db.sh"
-HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
-SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
-GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
-SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
-HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
+VAR_LIB_FILE="/usr/lib/dystopian-libs/libadmintools-variables.sh"
+HELPER_LIB_FILE="/usr/lib/dystopian-libs/libadmintools-helper.sh"
+SSL_LIB_FILE="/usr/lib/dystopian-libs/libssl.sh"
+GPG_LIB_FILE="/usr/lib/dystopian-libs/libgpg.sh"
+DC_DB_LIB_FILE="/usr/lib/dystopian-libs/libcrypto-db.sh"
+SECBOOT_LIB_FILE="/usr/lib/dystopian-libs/libsecboot.sh"
+DS_DB_LIB_FILE="/usr/lib/dystopian-libs/libsecboot-db.sh"
+HOSTS_LIB_FILE="/usr/lib/dystopian-libs/libhosts.sh"
+DH_DB_LIB_FILE="/usr/lib/dystopian-libs/libhosts-db.sh"
 
 
-[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../lib/variables.sh"
-[ -f "$DB_LIB_FILE" ] || DB_LIB_FILE="$SCRIPT_DIR/../lib/hosts-db.sh"
-[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
-[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
-[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
-[ -f "$SECBOOT_LIB_FILE" ] || SECBOOT_LIB_FILE="$SCRIPT_DIR/../lib/secboot.sh"
-[ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../lib/hosts.sh"
-
+[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libadmintools-variables.sh"
+[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libadmintools-helper.sh"
+[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libssl.sh"
+[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libgpg.sh"
+[ -f "$DC_DB_LIB_FILE" ] || DC_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libcrypto-db.sh"
+[ -f "$SECBOOT_LIB_FILE" ] || SECBOOT_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libsecboot.sh"
+[ -f "$DS_DB_LIB_FILE" ] || DS_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libsecboot-db.sh"
+[ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libhosts.sh"
+[ -f "$DH_DB_LIB_FILE" ] || DH_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libhosts-db.sh"
 
 # Source library files
-# shellcheck source=../lib/variables.sh
+# shellcheck source=../../dystopian-libs/lib/libadmintools-variables.sh
 [ -f "$VAR_LIB_FILE" ] && . "$VAR_LIB_FILE"
-# shellcheck source=../lib/hosts-db.sh
-[ -f "$DB_LIB_FILE" ] && . "$DB_LIB_FILE"
-# shellcheck source=../lib/helper.sh
+# shellcheck source=../../dystopian-libs/lib/libadmintools-helper.sh
 [ -f "$HELPER_LIB_FILE" ] && . "$HELPER_LIB_FILE"
-# shellcheck source=../lib/ssl.sh
+# shellcheck source=../../dystopian-tools/lib/libssl.sh
 [ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
-# shellcheck source=../lib/gpg.sh
+# shellcheck source=../../dystopian-tools/lib/libgpg.sh
 [ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
-#shellcheck source=../lib/secboot.sh
+#shellcheck source=../../dystopian-libs/lib/libcrypto-db.sh
+[ -f "$DC_DB_LIB_FILE" ] && . "$DC_DB_LIB_FILE"
+#shellcheck source=../../dystopian-libs/lib/libsecboot.sh
 [ -f "$SECBOOT_LIB_FILE" ] && . "$SECBOOT_LIB_FILE"
-#shellcheck source=../lib/hosts.sh
+#shellcheck source=../../dystopian-libs/lib/libsecboot-db.sh
+[ -f "$DS_DB_LIB_FILE" ] && . "$DS_DB_LIB_FILE"
+#shellcheck source=../../dystopian-libs/lib/libhosts.sh
 [ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
+# shellcheck source=../../dystopian-libs/lib/libhosts-db.sh
+[ -f "$DH_DB_LIB_FILE" ] && . "$DH_DB_LIB_FILE"
 #trap on_error_or_exit && exit 1 INT TERM HUP
 trap on_exit EXIT
 
@@ -56,19 +63,23 @@ Description:
 
 
 Commands:
+  init                                Loads hosts from ssh config file into db file.
 
-  sync
-    --host <host>     Synchronize with a specific host from the hosts DB.
+  addhost                             Adds a host to database file.
+    --name|-n <string>
+    --ipaddress|-ip <string>
+
+
+  sync                                bla
+    --host <host>                       Synchronize with a specific host from the hosts DB.
     --all           Synchronize with all hosts in the hosts DB.
-
-
-Maintenance Commands:
 
 
 
 Other Commands:
   -v | --verbose                      Show verbose status informations
   -q | --quiet                        No output informations
+  -u | --user
   --debug                             Show debug status informations
   version                             Show version information
   help                                Show this help message
@@ -112,18 +123,34 @@ IFS=$old_IFS
 
 
 case "$1" in
-  sync)
+  init)
     shift
-    host="" all=""
     while [ $# -gt 0 ]; do
       case "$1" in
-          --host|-h) host="$2"; shift 2;;
-          --all|-a) all="true"; shift;;
-          -help|--help) shorthelp "sync"; exit 0;;
-          *) echoe "Unknown option: $1"; shorthelp "sync"; exit 1;;
+        -h|--help|-help|help) help; exit 0;;
+        --) shift; break ;;
+        *) break;;
       esac
     done
-    host_sync ""
+    load_ssh_host_cfg
+    ;;
+  sync)
+    shift
+    host="" all_hosts="" ssl_db=""
+    gpg_db="" hosts_db="" all_dbs=""
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --host|-h) host="$2"; shift 2;;
+        --allhosts|--ah|-ah) all_hosts="true"; shift;;
+        --ssldb|-ssldb|-sdb|--ssl) ssl_db="true"; shift;;
+        --gpgdb|-gpgdb|-gdb|--gpg) gpg_db="true"; shift;;
+        --hostsdb|-hostsdb|-hdb|--hosts) hosts_db="true"; shift;;
+        --alldbs|-adb|-ad) all_dbs="true"; shift;;
+        -help|--help) shorthelp "sync"; exit 0;;
+        *) echoe "Unknown option: $1"; shorthelp "sync"; exit 1;;
+      esac
+    done
+    host_sync "$host" "$all_hosts" "$ssl_db" "$gpg_db" "$hosts_db" "$all_dbs"
     ;;
   -h|--help|-help) help; exit 0;;
   *) echoe "Unknown command: $1"; help; exit 1;;
