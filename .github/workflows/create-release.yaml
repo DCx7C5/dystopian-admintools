@@ -38,7 +38,7 @@ jobs:
           ver="${{ steps.meta.outputs.ver }}"
           repo="${GITHUB_REPOSITORY##*/}"
           # Create reproducible tarball from the tag
-          git archive --format=tar --prefix="${repo}-${ver}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
+          git archive --format=tar --prefix="${repo}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
           sha256sum "${repo}-${ver}.tar.gz" > "${repo}-${ver}.tar.gz.sha256"
 
       - name: Upload release assets
