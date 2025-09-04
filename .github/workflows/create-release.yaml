@@ -30,7 +30,6 @@ jobs:
           fi
           echo "ver=$ver" >> "$GITHUB_OUTPUT"
           echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
-
       - name: Build source tarball
         shell: bash
         run: |
@@ -40,7 +39,6 @@ jobs:
           # Create reproducible tarball from the tag
           git archive --format=tar --prefix="${repo}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
           sha256sum "${repo}-${ver}.tar.gz" > "${repo}-${ver}.tar.gz.sha256"
-
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
