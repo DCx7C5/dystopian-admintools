@@ -5,7 +5,7 @@
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 VAR_LIB_FILE="/usr/lib/dystopian-libs/libadmintools-variables.sh"
-HELPER_LIB_FILE="/usr/lib/dystopian-libs/libadmintools-helper.sh"
+HELPER_LIB_FILE="/usr/lib/dystopian-libs/libhelper.sh"
 SSL_LIB_FILE="/usr/lib/dystopian-libs/libssl.sh"
 GPG_LIB_FILE="/usr/lib/dystopian-libs/libgpg.sh"
 DC_DB_LIB_FILE="/usr/lib/dystopian-libs/libcrypto-db.sh"
@@ -14,8 +14,9 @@ DH_DB_LIB_FILE="/usr/lib/dystopian-libs/libhosts-db.sh"
 AUR_LIB_FILE="/usr/lib/dystopian-libs/libaurtool.sh"
 DA_DB_LIB_FILE="/usr/lib/dystopian-libs/libaurtool-db.sh"
 
+
 [ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libadmintools-variables.sh"
-[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libadmintools-helper.sh"
+[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libhelper.sh"
 [ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libssl.sh"
 [ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libgpg.sh"
 [ -f "$DC_DB_LIB_FILE" ] || DC_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libcrypto-db.sh"
@@ -27,7 +28,7 @@ DA_DB_LIB_FILE="/usr/lib/dystopian-libs/libaurtool-db.sh"
 # Source library files
 # shellcheck source=../../dystopian-libs/lib/libadmintools-variables.sh
 [ -f "$VAR_LIB_FILE" ] && . "$VAR_LIB_FILE"
-# shellcheck source=../../dystopian-libs/lib/libadmintools-helper.sh
+# shellcheck source=../../dystopian-libs/lib/libhelper.sh
 [ -f "$HELPER_LIB_FILE" ] && . "$HELPER_LIB_FILE"
 # shellcheck source=../../dystopian-libs/lib/libssl.sh
 [ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"

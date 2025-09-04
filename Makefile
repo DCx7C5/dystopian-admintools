@@ -43,7 +43,7 @@ remove-aurtool:
 bkp-tool:
 	@set -eu; \
 	. $(PREFIX)/lib/dystopian-libs/libadmintools-variables.sh; \
-	. $(PREFIX)/lib/dystopian-libs/libadmintools-helper.sh; \
+	. $(PREFIX)/lib/dystopian-libs/libhelper.sh; \
 	: "$${SRC:?Set SRC to a directory name (e.g. dystopian-hosts) or absolute path}"; \
 	case "$$SRC" in \
 		/*) _path="$$SRC" ;; \
