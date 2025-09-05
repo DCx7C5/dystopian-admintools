@@ -24,17 +24,35 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+      - name: Check for [RELEASE] in commit message
+        id: check_commit
+        run: |
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          if echo "$LATEST_COMMIT_MESSAGE" | grep -q "\[RELEASE\]"; then
+            echo "has_release_keyword=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_release_keyword=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get next version
         id: get_next_version
         uses: thenativeweb/get-next-version@2.6.0
+
+      - name: Import GPG key
+        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - name: Create and push tag
         if: steps.get_next_version.outputs.hasNextVersion == 'true'
         run: |
           version="v${{ steps.get_next_version.outputs.version }}"
+          git config --global user.signingkey "$GPG_PRIVATE_KEY_ID"
+          git config --global tag.gpgSign true
           git tag -s "$version" -m "Release $version"
           git push origin "$version"
         env:
+          GPG_PRIVATE_KEY_ID: ${{ vars.GPG_PRIVATE_KEY_ID }}
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Notify on failure
