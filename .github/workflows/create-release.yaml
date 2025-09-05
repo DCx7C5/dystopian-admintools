@@ -1,4 +1,4 @@
-name: Release
+name: Create Release Based on Tags
 
 on:
   push:
