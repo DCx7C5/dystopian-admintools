@@ -1,4 +1,3 @@
-# language: yaml
 name: Release
 
 on:
@@ -7,12 +6,13 @@ on:
       - 'v*'   # triggers on v1.2.3, v1.2.3-alpha, etc.
 
 permissions:
-  contents: write  # required to create/upload release assets
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -30,15 +30,16 @@ jobs:
           fi
           echo "ver=$ver" >> "$GITHUB_OUTPUT"
           echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
       - name: Build source tarball
         shell: bash
         run: |
           set -euo pipefail
           ver="${{ steps.meta.outputs.ver }}"
           repo="${GITHUB_REPOSITORY##*/}"
-          # Create reproducible tarball from the tag
           git archive --format=tar --prefix="${repo}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
           sha256sum "${repo}-${ver}.tar.gz" > "${repo}-${ver}.tar.gz.sha256"
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
