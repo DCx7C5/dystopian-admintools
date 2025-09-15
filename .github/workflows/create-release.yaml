@@ -52,8 +52,8 @@ jobs:
           repo="${GITHUB_REPOSITORY##*/}"
           ver="${{ steps.meta.outputs.ver }}"
           gpgid="${{ vars.GPG_PRIVATE_KEY_ID }}"
-          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign --armor -u "$gpgid" "${repo}-${ver}.tar.gz"
-          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign --armor -u "$gpgid" "${repo}-${ver}.tar.gz.sha256"
+          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign -u "$gpgid" -o "${repo}-${ver}.tar.gz.sig" "${repo}-${ver}.tar.gz" 
+          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign -u "$gpgid" -o "{repo}-${ver}.tar.gz.sha256.sig"  "${repo}-${ver}.tar.gz.sha256"
           files=$(find "$tmpdir" -type f 2>/dev/null)
           for file in $files; do
             shred -n 25 "$file"
