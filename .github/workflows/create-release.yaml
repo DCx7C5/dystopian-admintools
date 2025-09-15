@@ -40,6 +40,25 @@ jobs:
           git archive --format=tar --prefix="${repo}/" "v${ver}" | gzip -n > "${repo}-${ver}.tar.gz"
           sha256sum "${repo}-${ver}.tar.gz" > "${repo}-${ver}.tar.gz.sha256"
 
+      - name: Sign release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmpdir=$(mktemp -d /tmp/XXXXXXX)
+          touch "$tmpdir/pubring.kbx"
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | \
+          openssl aes-256-cbc -a -d -pbkdf2 -pass "pass:${{ secrets.GPG_PASSPHRASE }}" | \
+          gpg --no-tty --batch --homedir "$tmpdir" --import
+          repo="${GITHUB_REPOSITORY##*/}"
+          ver="${{ steps.meta.outputs.ver }}"
+          gpgid="${{ vars.GPG_PRIVATE_KEY_ID }}"
+          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign --armor -u "$gpgid" "${repo}-${ver}.tar.gz"
+          gpg --batch --no-tty --homedir "$tmpdir" --yes --detach-sign --armor -u "$gpgid" "${repo}-${ver}.tar.gz.sha256"
+          files=$(find "$tmpdir" -type f 2>/dev/null)
+          for file in $files; do
+            shred -n 25 "$file"
+          done
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
