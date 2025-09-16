@@ -70,6 +70,17 @@ jobs:
           GPG_PRIVATE_KEY_ID: ${{ vars.GPG_PRIVATE_KEY_ID }}
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
+      - name: Cleanup GPG
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=$(find "$GPGDIR" -type f 2>/dev/null)
+          for file in $files; do
+            shred -n 200 "$file"
+          done
+        env:
+          GPGDIR: ${{ steps.import_gpg.outputs.gpgdir }}
+
       - name: Notify on failure
         if: failure()
         run: |
