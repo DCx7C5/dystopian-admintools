@@ -49,6 +49,7 @@ jobs:
           echo "gpgdir=$tmpdir" >> "$GITHUB_OUTPUT"
           # Write secrets to temporary files
           echo "${{ secrets.GPG_PRIVATE_KEY }}" > "$tmpdir/private_key.enc"
+          
           # Decrypt and import
           openssl aes-256-cbc -a -d -pbkdf2 \
             -in "$tmpdir/private_key.enc" \
@@ -59,6 +60,7 @@ jobs:
       - name: Create and push tag
         id: create_tag
         if: steps.check_commit.outputs.has_release_keyword == 'true' && steps.get_next_version.outputs.hasNextVersion == 'true'
+        shell: bash
         run: |
           set -euo pipefail
           version="v${{ steps.get_next_version.outputs.version }}"
@@ -71,9 +73,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Cleanup GPG
+        id: cleanup
+        if: steps.check_commit.outputs.has_release_keyword == 'true' && steps.get_next_version.outputs.hasNextVersion == 'true'
         shell: bash
         run: |
-          set -euo pipefail
           files=$(find "$GPGDIR" -type f 2>/dev/null)
           for file in $files; do
             shred -n 200 "$file"
